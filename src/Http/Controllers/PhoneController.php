@@ -51,9 +51,22 @@ class PhoneController
 
         Cache::forget("phone_verification:{$hash}");
 
+        // Get the user model class from config
+        $userModel = config('phone-package.model');
+        $phoneField = config('phone-package.phone_field', 'phone');
+
+        // Find or create user
+        $user = $userModel::firstOrCreate([
+            $phoneField => $data['phone']
+        ]);
+
+        // Create token
+        $token = $user->createToken('phone-auth')->plainTextToken;
+
         return response()->json([
             'message' => 'Code verified successfully',
-            'phone' => $data['phone']
+            'token' => $token,
+            'user' => $user
         ]);
     }
 
