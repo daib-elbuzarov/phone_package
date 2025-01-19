@@ -5,21 +5,26 @@ namespace Comrades\PhonePackage;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Comrades\PhonePackage\Commands\PhonePackageCommand;
+use Comrades\PhonePackage\Contracts\CodeSenderInterface;
+use Comrades\PhonePackage\Factories\CodeSenderFactory;
 
 class PhonePackageServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('phone-package')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_phone_package_table')
+            ->hasRoute('api')
             ->hasCommand(PhonePackageCommand::class);
+    }
+
+    public function boot()
+    {
+        parent::boot();
+
+        $this->app->bind(CodeSenderInterface::class, function ($app) {
+            return CodeSenderFactory::create();
+        });
     }
 }
